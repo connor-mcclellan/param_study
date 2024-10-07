@@ -1,10 +1,6 @@
-#MDOT := 1e17 5e17 1e18 5e18 1e19
-#DENS := 75 100 150 200 500 1000
+TAUCELL := 1e0 1e-1 1e-2 1e-3
 
-MDOT := 1e18
-DENS := 100 1000
-
-OUTDIRS := $(foreach md,$(MDOT),$(foreach de,$(DENS),mdot$(md)_dens$(de)))
+OUTDIRS := $(foreach tc,$(TAUCELL),taucell$(tc))
 
 # Rule to generate the output directories
 $(OUTDIRS):
@@ -13,10 +9,10 @@ $(OUTDIRS):
 # Rule to generate the config.env files in the respective output directories
 results/%/config.env:
 	mkdir -p $(dir $@)
-	python make_config.py $(subst mdot,,$(subst _dens, ,$*)) > $@
+	python make_config.py $(subst taucell, ,$*) > $@
 
 
-results/%/data: results/%/config.env
+results/%: results/%/config.env
 	mkdir -p $@; \
 	cp $^ wind/config.env; \
 	pushd wind; \
@@ -27,9 +23,7 @@ results/%/data: results/%/config.env
 	popd
 
 
-all: $(foreach dir,$(OUTDIRS),results/$(dir)/data)
-
-
+all: $(foreach dir,$(OUTDIRS),results/$(dir))
 
 clean:
 	rm -rf $(foreach dir,$(OUTDIRS),results/$(dir))
